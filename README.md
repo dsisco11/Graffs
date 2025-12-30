@@ -18,6 +18,70 @@ A high-performance directed graph library for .NET 8.
 dotnet add package Graffs --version 0.1.0
 ```
 
+## Core Concepts
+
+### Nodes and Node Identity
+
+Graffs graphs are generic over node type (`TNode`). Nodes can be any type that is non-null and properly implements equality (via `Equals` and `GetHashCode`). The graph uses node equality to identify and distinguish nodes.
+
+**Simple nodes** - Use primitive types like `string` or `int` directly as node identifiers:
+
+```csharp
+// Strings as node keys
+var graph = new GraphBuilder<string>()
+    .AddEdge("A", "B")
+    .AddEdge("B", "C")
+    .Build();
+
+// Integers as node keys
+var graph = new GraphBuilder<int>()
+    .AddEdge(1, 2)
+    .AddEdge(2, 3)
+    .Build();
+```
+
+**Rich nodes** - Use custom types implementing `IGraphNode<TKey>` for nodes that carry additional data:
+
+```csharp
+// IGraphNode<TKey> provides a standard way to expose node identity
+public interface IGraphNode<out TKey> where TKey : notnull
+{
+    TKey Id { get; }              // Unique identifier for this node
+    string? DisplayName { get; }  // Optional human-readable name
+}
+
+// Example: A task node with metadata
+public class TaskNode : IGraphNode<string>
+{
+    public string Id { get; }
+    public string? DisplayName { get; }
+    public TimeSpan EstimatedDuration { get; }
+
+    public TaskNode(string id, string? displayName = null, TimeSpan? duration = null)
+    {
+        Id = id;
+        DisplayName = displayName;
+        EstimatedDuration = duration ?? TimeSpan.Zero;
+    }
+
+    // Important: Override Equals/GetHashCode based on Id for graph operations
+    public override bool Equals(object? obj) => obj is TaskNode other && Id == other.Id;
+    public override int GetHashCode() => Id.GetHashCode();
+}
+
+// Use rich nodes in a graph
+var compile = new TaskNode("compile", "Compile Source", TimeSpan.FromMinutes(2));
+var test = new TaskNode("test", "Run Tests", TimeSpan.FromMinutes(5));
+var deploy = new TaskNode("deploy", "Deploy App", TimeSpan.FromMinutes(1));
+
+var graph = new DependencyGraphBuilder<TaskNode>()
+    .DependsOn(test, compile)    // test depends on compile
+    .DependsOn(deploy, test)     // deploy depends on test
+    .Build();
+```
+
+> **Note**: `IGraphNode<TKey>` is optional. It provides a standardized interface for node identification and display, which can be useful for debugging, logging, or when building tooling around graphs. Your nodes work with Graffs as long as they implement proper equality semantics.
+
 ## Quick Start
 
 ```csharp
@@ -25,16 +89,16 @@ using Graffs;
 using Graffs.Builders;
 using Graffs.Algorithms;
 
-// Build a dependency graph
+// Build a dependency graph using string keys
 var graph = new DependencyGraphBuilder<string>()
-    .DependsOn("C", "A")  // C depends on A
-    .DependsOn("C", "B")  // C depends on B
-    .DependsOn("D", "C")  // D depends on C
+    .DependsOn("C", "A")  // C depends on A (edge: A → C)
+    .DependsOn("C", "B")  // C depends on B (edge: B → C)
+    .DependsOn("D", "C")  // D depends on C (edge: C → D)
     .Build();
 
-// Topological sort
+// Topological sort - returns nodes in dependency order
 var result = TopologicalSort.KahnSort(graph);
-// Result: [A, B, C, D] or [B, A, C, D]
+// Result: [A, B, C, D] or [B, A, C, D] (dependencies come before dependents)
 
 // Check for cycles
 bool hasCycles = CycleDetection.HasCycles(graph);
