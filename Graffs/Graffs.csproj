@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Graffs</RootNamespace>
+    
+    <!-- NuGet Package Metadata -->
+    <PackageId>Graffs</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>David Sisco</Authors>
+    <Description>A high-performance directed graph library for .NET 8. Provides data structures and algorithms for dependency analysis, topological sorting, cycle detection, strongly connected components (SCC), weakly connected components (WCC), path finding, and graph slicing.</Description>
+    <PackageTags>graph;dag;directed-graph;topological-sort;cycle-detection;scc;wcc;algorithms;dependency-graph</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/dsisco11/Graffs</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/dsisco11/Graffs</PackageProjectUrl>
+    
+    <!-- Package Generation -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
