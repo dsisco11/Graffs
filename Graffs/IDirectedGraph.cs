@@ -14,8 +14,9 @@ public interface IDirectedGraph<TNode> : IReadOnlyCollection<TNode>
     /// Gets all nodes in the graph as an immutable set.
     /// </summary>
     /// <remarks>
-    /// This property provides O(1) access to the complete set of nodes.
-    /// The returned set is immutable and reflects the current state of the graph.
+    /// Immutable implementations provide O(1) access to the complete set of nodes.
+    /// Mutable implementations may construct a snapshot on access, with implementation-specific cost.
+    /// The returned set is immutable and reflects the state of the graph when obtained.
     /// </remarks>
     IReadOnlySet<TNode> Nodes { get; }
     
@@ -24,7 +25,7 @@ public interface IDirectedGraph<TNode> : IReadOnlyCollection<TNode>
     /// </summary>
     /// <remarks>
     /// This property provides access to all edges in the graph.
-    /// The returned collection is immutable and reflects the current state of the graph.
+    /// The returned collection is immutable and reflects the state of the graph when obtained.
     /// </remarks>
     IReadOnlyCollection<IGraphEdge<TNode>> Edges { get; }
     
